@@ -1,0 +1,205 @@
+#!/bin/bash
+
+#echo -e "|[ type ] 	            layout  |"
+
+#########################################
+#	Bomj PacKaGe tool ver 0.1
+#  TODO: MAKE THIS SHIT
+#########################################
+# colors
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+finestr=''${GREEN}' fine '${NC}''
+failstr=''${RED}' error '${NC}''
+warnstr=''${YELLOW}' warn '${NC}''
+
+# bomj tools
+
+exitdb() {
+	rm -f /var/bpkg/lock
+	exit 1
+}
+
+init() {
+	mkdir -v /var/bpkg
+	mkdir -v /var/bpkg/repospkg /var/bpkg/db /var/bpkg/temp
+	mkdir -v /etc/bpkg.d
+	touch /etc/bpkg.d/list
+}
+
+selfcheck() {
+	echo -e placeholder
+}
+#########################################
+# repo
+sync() {
+	touch /var/bpkg/lock > /dev/null
+	echo -e "|[${finestr}]  synchronizing repository |"
+	grep -v '^&' /etc/bpkg.d/list | sed 's/ /\n/g' > /var/bpkg/temp/repos
+	reposcount=$(wc -l /var/bpkg/temp/repos | cut -d ' ' -f 1)
+	i=1
+	while [ "$i" -le "$reposcount" ]; do
+		reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
+		ls /var/bpkg/db/$reponame &> /dev/null
+		if [ $? -ne 0 ]; then
+			echo -e "|[${warnstr}]        repo db not found :( ||$reponame|"
+			mkdir -p "/var/bpkg/db/$reponame"
+			echo -e "|[${finestr}]             created repo db ||$reponame|"
+		else
+			echo -e "|[${finestr}] 	      repo db found ||$reponame|"
+		fi
+		
+		i=$((i + 1))
+	done
+	i=1
+	while [ $i -le $reposcount ]; do
+		repourl=$(sed -n "s/github.com/raw.githubusercontent.com/g;${i}p" /var/bpkg/temp/repos | cut -d '|' -f 2)
+		ver=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 3)
+		reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
+		if ! [ -f "/var/bpkg/db/$reponame/timestamp" ]; then
+			timestampthere=0
+		else
+			timestampthere=$(cat /var/bpkg/db/$reponame/timestamp)
+		fi
+		timestamp=$(curl --no-progress-meter "$repourl"/refs/heads/$ver/timestamp) 
+		if [ "$timestampthere" -eq "$timestamp" ]; then
+			echo -e "|[${finestr}]        repo is up to date ||$reponame|"
+		else
+			curl --no-progress-meter "$repourl"/refs/heads/$ver/pkgslist.json | pv -pber > /var/bpkg/db/$reponame/pkglist.json
+			curl --no-progress-meter "$repourl"/refs/heads/$ver/timestamp | pv -pber > /var/bpkg/db/$reponame/timestamp
+			echo -e "|[${finestr}]      repo has been updated||$reponame|"
+		fi
+		i=$((i + 1))	
+	done	
+	rm -f /var/bpkg/temp/repos
+}
+
+search() {
+	input[0]=''
+	neededpkg=(${input[@]})
+	grep -v '^&' /etc/bpkg.d/list | sed 's/ /\n/g' > /var/bpkg/temp/repos
+	reposcount=$(wc -l /var/bpkg/temp/repos | cut -d ' ' -f 1)
+	notfound=()
+	i=1; while [ $i -le $reposcount ]; do	
+		reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
+		packagescount=$(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages | length')
+		j=0; while [ $j -lt $packagescount ]; do
+			foundedpkg=$(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages['$j'].name' | sed -e 's/"//g' )
+			k=0; while [ $k -lt ${#neededpkg[@]} ]; do 
+				if [ $foundedpkg == ${neededpkg[${k}]} ]; then
+					echo -e "|[${finestr}]	    	      found | ${foundedpkg} | ${reponame} |"
+				else
+					notfound[$((${#notfound[*]} + 1))]=$(echo "${neededpkg[${k}]} ") 
+				fi
+				k=$((k + 1))
+			done
+			j=$((j + 1))
+		done
+		i=$((i + 1))
+	done
+	notfound[$((${#notfound[*]} + 1))]=notfound[$((${#notfound[*]}))] # лютый костыль ХЗ как без него жить
+	j=0; while [ $j -lt ${#neededpkg[@]} ]; do
+		foundcheck=$(echo ${notfound[@]} | grep -o "${neededpkg[${j}]} " | wc -w)
+		if [ $foundcheck -ge $reposcount ]; then
+			echo -e "|[${failstr}] 		  not found | ${neededpkg[${j}]} |"
+		fi
+		j=$((j + 1))
+	done
+	rm -f /var/bpkg/temp/repos
+}
+# pkgs
+update() {
+	sync
+	echo -e 'update'
+}
+purge() {
+	touch /var/bpkg/lock > /dev/null
+	echo -e 'purge'
+}
+
+install() {
+	touch /var/bpkg/lock > /dev/null
+	echo -e 'install'
+}
+
+list() {
+	touch /var/bpkg/lock > /dev/null
+	echo -e 'list'
+}
+# help
+helpkg() {
+	echo -e -e " |[ help ] -S --sync    | synchronize repo    |\n" \
+	 "|[ help ] -D --delete  | delete pkgs         |\n" \
+	 "|[ help ] -I --install | install pkgs        |\n" \
+	 "|[ help ] -L --list    | list installed pkgs |\n" \
+	 "|[ help ] -F --find    | find pkgs in repo   |\n" \
+	 "|[ help ] -U --upgrade | upgrade your system |\n"
+	exit 1 
+}
+input=("$@")
+
+if [[ "$input" =~ ^(-h|--help)$ ]] ; then
+	helpkg
+fi
+
+ls /var/bpkg/lock &> /dev/null
+if [ $? -eq 0 ]; then
+	echo -e "|[${failstr}] 	    lock file found |"
+	exit 1
+fi
+
+if [ "$EUID" -ne 0 ]; then 
+	
+	echo -e "|[${failstr}] 	  permission denied |"
+	exitdb
+fi
+
+
+ls /var/bpkg &> /dev/null
+if [ $? -eq 0 ]; then
+	echo -e "|[${finestr}] 	    /var/bpkg found |"
+else
+	echo -e "|[${warnstr}] 	/var/bpkg not exist |"
+	init
+	echo -e "|[${finestr}] 	        initialized |"
+
+fi
+
+echo -e "|[${finestr}] 	            started |"
+
+case ${input[0]} in
+	'-S'|'--sync')
+		sync
+		exitdb
+	;;
+	'-D'|'--delete')
+		purge
+		exitdb
+	;;
+	'-I'|'--install')
+		install
+		exitdb
+	;;
+	'-L'|'--list')
+		list
+		exitdb
+	;;
+	'-F'|'--find')
+		search
+		exitdb
+	;;
+	'-U'|'--upgrade')
+		update
+		exitdb
+	;;
+	'')
+		echo -e "no operation specified"
+	;;
+	*)
+		echo -e "|[${failstr}] 	     unknown option || $input |"
+	;;
+esac
