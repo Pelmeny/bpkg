@@ -1,0 +1,13 @@
+URL="https://codeload.github.com/dylanaraps/neofetch/zip/refs/tags/7.1.0"
+depend=["bash"]
+prepare() {
+  curl -sO $URL
+}
+make() {
+  unzip ./7.1.0
+  cd ./neofetch*
+  cp ./neofetch /bin/
+  echo sex
+}
+prepare
+make

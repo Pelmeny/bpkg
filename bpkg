@@ -150,13 +150,23 @@ purge() {
 }
 
 localinstall() {
-	mkdir /var/bpkg/temp/installing
-	pwd=$(pwd)
-	cd /var/bpkg/temp/installing
-	touch /var/bpkg/lock > /dev/null
-	bash $pwd/${input[1]}
-	rm -rf /var/bpkg/temp/installing
-	cd $pwd
+	echo $(pwd)/$filetoinstall | grep .bkg > /dev/null
+	if [ $? -eq 0 ]; then
+		mkdir /var/bpkg/temp/installing
+		pwd=$(pwd)
+		echo -e "|[${finestr}] 	    installing .bkg |"
+		cd /var/bpkg/temp/installing
+		touch /var/bpkg/lock > /dev/null
+		bash $pwd/$filetoinstall > /dev/null
+		if [ $? -eq 0 ]; then
+			echo -e "|[${finestr}]                 installed |" 
+		fi
+		rm -rf /var/bpkg/temp/installing
+		cd $pwd
+	else
+		echo -e "|[${failstr}] 	    please use .bkg |"
+	fi
+	filetoinstall=0
 }
 
 install() {
@@ -186,9 +196,7 @@ input=("$@")
 if [[ "$input" =~ ^(-h|--help)$ ]] ; then
 	helpkg
 fi
-
-ls /var/bpkg/lock &> /dev/null
-if [ $? -eq 0 ]; then
+if [ -f /var/bpkg/lock ]; then
 	echo -e "|[${failstr}] 	    lock file found |"
 	exit 1
 fi
@@ -238,6 +246,7 @@ case ${input[0]} in
 		exitdb
 	;;
 	'-Li'|'--local')
+		filetoinstall=${input[1]}
 		localinstall
 		exitdb
 	;;
