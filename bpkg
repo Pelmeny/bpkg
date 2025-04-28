@@ -2,10 +2,10 @@
 
 #echo -e "|[ type ] 	            layout  |"
 
-#########################################
+##################################################################################
 #	Bomj PacKaGe tool ver 0.1
 #  TODO: MAKE THIS SHIT
-#########################################
+##################################################################################
 # colors
 
 RED='\033[0;31m'
@@ -17,6 +17,7 @@ finestr=''${GREEN}' fine '${NC}''
 failstr=''${RED}' error '${NC}''
 warnstr=''${YELLOW}' warn '${NC}''
 
+##################################################################################
 # bomj tools
 
 exitdb() {
@@ -34,7 +35,34 @@ init() {
 selfcheck() {
 	echo -e placeholder
 }
-#########################################
+
+searchfunc() {
+	local -n searchinpkg=$1
+	neededpkg=($(printf "%s\n" "${searchinpkg[@]}" | awk '!seen[$0]++'))
+	grep -v '^&' /etc/bpkg.d/list | sed 's/ /\n/g' > /var/bpkg/temp/repos
+	reposcount=$(wc -l /var/bpkg/temp/repos | cut -d ' ' -f 1)
+	notfound=()
+	i=1; while [ $i -le $reposcount ]; do	
+		reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
+		packagescount=$(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages | length')
+		j=0; while [ $j -lt $packagescount ]; do
+			foundedpkg=$(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages['$j'].name' | sed -e 's/"//g' )
+			k=0; while [ $k -lt ${#neededpkg[@]} ]; do 
+				if [ $foundedpkg == ${neededpkg[${k}]} ]; then
+					searchfuncoutpath+=($(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages['$j'].path' | sed -e 's/"//g'; ))
+					searchfuncoutname+=($(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages['$j'].name' | sed -e 's/"//g'; ))
+					searchfuncoutver+=($(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages['$j'].version' | sed -e 's/"//g'; ))
+				fi
+				k=$((k + 1))
+			done
+			j=$((j + 1))
+		done
+		i=$((i + 1))
+	done
+
+	rm -f /var/bpkg/temp/repos
+}
+##################################################################################
 # repo
 sync() {
 	touch /var/bpkg/lock > /dev/null
@@ -80,7 +108,7 @@ sync() {
 
 search() {
 	input[0]=''
-	neededpkg=(${input[@]})
+	neededpkg=($(printf "%s\n" "${input[@]}" | awk '!seen[$0]++'))
 	grep -v '^&' /etc/bpkg.d/list | sed 's/ /\n/g' > /var/bpkg/temp/repos
 	reposcount=$(wc -l /var/bpkg/temp/repos | cut -d ' ' -f 1)
 	notfound=()
@@ -121,23 +149,36 @@ purge() {
 	echo -e 'purge'
 }
 
-install() {
+localinstall() {
+	mkdir /var/bpkg/temp/installing
+	pwd=$(pwd)
+	cd /var/bpkg/temp/installing
 	touch /var/bpkg/lock > /dev/null
-	echo -e 'install'
+	bash $pwd/${input[1]}
+	rm -rf /var/bpkg/temp/installing
+	cd $pwd
+}
+
+install() {
+	echo lock
+
 }
 
 list() {
 	touch /var/bpkg/lock > /dev/null
 	echo -e 'list'
 }
+##################################################################################
 # help
 helpkg() {
-	echo -e -e " |[ help ] -S --sync    | synchronize repo    |\n" \
-	 "|[ help ] -D --delete  | delete pkgs         |\n" \
-	 "|[ help ] -I --install | install pkgs        |\n" \
-	 "|[ help ] -L --list    | list installed pkgs |\n" \
-	 "|[ help ] -F --find    | find pkgs in repo   |\n" \
-	 "|[ help ] -U --upgrade | upgrade your system |\n"
+	echo -e \
+	 " |[ help ] -S --sync     | synchronize repo     |\n" \
+	 "|[ help ] -D --delete   | delete pkgs          |\n" \
+	 "|[ help ] -I --install  | install pkgs         |\n" \
+	 "|[ help ] -L --list     | list installed pkgs  |\n" \
+	 "|[ help ] -F --find     | find pkgs in repo    |\n" \
+	 "|[ help ] -Li --local   | install pkg from bkg |\n" \
+	 "|[ help ] -U --upgrade  | upgrade your system  |\n"
 	exit 1 
 }
 input=("$@")
@@ -194,6 +235,10 @@ case ${input[0]} in
 	;;
 	'-U'|'--upgrade')
 		update
+		exitdb
+	;;
+	'-Li'|'--local')
+		localinstall
 		exitdb
 	;;
 	'')
