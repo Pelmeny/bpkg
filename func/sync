@@ -7,9 +7,9 @@ while [ "$i" -le "$reposcount" ]; do
 	reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
 	ls /var/bpkg/db/$reponame &> /dev/null
 	if [ $? -ne 0 ]; then
-		echo -e "|[${warnstr}]        repo db not found :( ||$reponame|"
+		echo -e "|[${warnstr}]      repo db not found :( ||$reponame|"
 		mkdir -p "/var/bpkg/db/$reponame"
-		echo -e "|[${finestr}]             created repo db ||$reponame|"
+		echo -e "|[${finestr}]           created repo db ||$reponame|"
 	else
 		echo -e "|[${finestr}] 	      repo db found ||$reponame|"
 	fi

@@ -5,8 +5,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 install() {
-    echo -e "|| Thank you for installing bpkg... ||"
     echo -e "${NC}####################|installing|####################${YELLOW}"
+    echo -e "${GREEN}|| Thank you for installing bpkg... ||${YELLOW}"
 	mkdir -v /var/bpkg
 	mkdir -v /var/bpkg/repospkg /var/bpkg/db /var/bpkg/temp
 	mkdir -v /etc/bpkg.d

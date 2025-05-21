@@ -133,8 +133,6 @@ if [[ "$input" =~ ^(-h|--help)$ ]] ; then
 	helpkg
 elif [[ "$input" =~ ^(-v|--version)$ ]] ; then
 	versionpkg
-elif [[ "$input" =~ ^(--setup)$ ]] ; then
-	source ./func/setup
 fi
 
 if [ -f /var/bpkg/lock ]; then
@@ -146,6 +144,12 @@ if [ "$EUID" -ne 0 ]; then
 	
 	echo -e "|[${failstr}] 	  permission denied |"
 	exitdb
+fi
+
+if [[ "$input" =~ ^(--setup)$ ]] ; then
+	if [ -f ./pc ]; then
+		source ./func/setup
+	fi
 fi
 
 if [ -f /bin/bpkg ] || [ -d /var/bpkg ] || [ -d /etc/bpkg ]; then
