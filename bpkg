@@ -3,7 +3,7 @@
 #echo -e "|[ type ] 	            layout  |"
 
 ##################################################################################
-#	Bomj PacKaGe tool ver 0.1
+#	Bomj PacKaGe tool ver 0.2
 #  TODO: MAKE THIS SHIT
 ##################################################################################
 # colors
@@ -19,6 +19,23 @@ warnstr=''${YELLOW}' warn '${NC}''
 
 ##################################################################################
 # bomj tools
+
+purgebpkg() {
+	response=0 
+	while [ $response = 0 ] ; do
+    echo -e "Are you sure (${RED}Y${NC}/${GREEN}N${NC})"
+    read -rp "?? " response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+		echo -e "#####################|removing|#####################${RED}"
+		rm -rvf /var/bpkg /etc/bpkg* 
+		echo -e "${NC}####################################################"
+    elif [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+        exit 0
+    else 
+        response="0"
+    fi
+	done
+}
 
 exitdb() {
 	rm -f /var/bpkg/lock
@@ -104,7 +121,7 @@ helpkg() {
 }
 versionpkg() {
 	echo "======================================"
-	echo -e "=   bpkg ver 0.1 '\033[0;36mBetta splendens\033[0m'  ="
+	echo -e "=   bpkg ver 0.2 '\033[0;36mBetta splendens\033[0m'  ="
 	echo "======================================"
 	exit 0 
 }
@@ -159,6 +176,9 @@ case ${input[0]} in
 	'-U'|'--upgrade')
 		update
 		exitdb
+	;;
+	'--purge')
+		purgebpkg
 	;;
 	'-Li'|'--local')
 		filetoinstall=${input[1]}
