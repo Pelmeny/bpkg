@@ -116,6 +116,7 @@ helpkg() {
 	 "|[ help ] -L --list     | list installed pkgs  |\n" \
 	 "|[ help ] -F --find     | find pkgs in repo    |\n" \
 	 "|[ help ] -Li --local   | install pkg from bkg |\n" \
+	 "|[ help ] --purge       | remove bpkg from pc  |\n" \
 	 "|[ help ] -U --upgrade  | upgrade your system  |\n"
 	exit 0 
 }
