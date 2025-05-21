@@ -2,6 +2,15 @@
 
 The most stupid package manager on the world 
 
+## Installing
+
+to install bpkg run :
+```
+git clone https://github.com/Pelmeny/bpkg.git
+cd bpkg
+./bpkg --setup
+```
+
 ## Overview 📚
 
 NaGNU/bpkg is open source and better than dpkg
