@@ -28,6 +28,7 @@ purgebpkg() {
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 		echo -e "#####################|removing|#####################${RED}"
 		rm -rvf /var/bpkg /etc/bpkg* 
+		rm -rf /bin/bpkg
 		echo -e "${NC}####################################################"
     elif [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
         exit 0
