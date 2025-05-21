@@ -3,6 +3,7 @@
 The most stupid package manager on the world 
 
 ## Installing
+depend : pw curl
 
 to install bpkg run :
 ```
@@ -13,7 +14,7 @@ cd bpkg
 
 ## Overview 📚
 
-NaGNU/bpkg is open source and better than dpkg
+bpkg is open source and writen on shell
 
 ## Project Status 🛠
 - [x] Sync repositories 
