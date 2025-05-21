@@ -12,7 +12,7 @@ if [ $? -eq 0 ]; then
 	fi
 	rm -rf /var/bpkg/temp/installing
 	cd $pwd
-else
-	echo -e "|[${failstr}] 	    please use .bkg |"
-fi
+	else
+		echo -e "|[${failstr}] 	    please use .bkg |"
+	fi
 filetoinstall=0

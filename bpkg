@@ -25,18 +25,9 @@ exitdb() {
 	exit 1
 }
 
-init() {
-	echo "#####################################################"
-	mkdir -v /var/bpkg
-	mkdir -v /var/bpkg/repospkg /var/bpkg/db /var/bpkg/temp
-	mkdir -v /etc/bpkg.d
-	cp -rfv ./func /etc/bpkg.d/
-	touch /etc/bpkg.d/list
-	echo "#####################################################"
-}
-
-selfcheck() {
-	echo -e placeholder
+installcheck() {
+	echo -e "|[${failstr}] 	     reinstall bpkg |"
+	exit 0
 }
 
 searchfunc() {
@@ -123,7 +114,10 @@ if [[ "$input" =~ ^(-h|--help)$ ]] ; then
 	helpkg
 elif [[ "$input" =~ ^(-v|--version)$ ]] ; then
 	versionpkg
+elif [[ "$input" =~ ^(--setup)$ ]] ; then
+	source ./func/setup
 fi
+
 if [ -f /var/bpkg/lock ]; then
 	echo -e "|[${failstr}] 	    lock file found |"
 	exit 1
@@ -135,18 +129,11 @@ if [ "$EUID" -ne 0 ]; then
 	exitdb
 fi
 
-
-ls /var/bpkg &> /dev/null
-if [ $? -eq 0 ]; then
-	echo -e "|[${finestr}] 	    /var/bpkg found |"
+if [ -f /bin/bpkg ] || [ -d /var/bpkg ] || [ -d /etc/bpkg ]; then
+	echo -e "|[${finestr}] 	            started |"
 else
-	echo -e "|[${warnstr}] 	/var/bpkg not exist |"
-	init
-	echo -e "|[${finestr}] 	        initialized |"
-
+	installcheck
 fi
-
-echo -e "|[${finestr}] 	            started |"
 
 case ${input[0]} in
 	'-S'|'--sync')
