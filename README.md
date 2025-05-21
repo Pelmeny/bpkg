@@ -3,9 +3,9 @@
 The most stupid package manager on the world 
 
 ## Installing
+depend : pw curl
 
 to install bpkg run :
-depend : pw curl
 ```
 git clone https://github.com/Pelmeny/bpkg.git
 cd bpkg
