@@ -5,6 +5,7 @@ The most stupid package manager on the world
 ## Installing
 
 to install bpkg run :
+depend : pw curl
 ```
 git clone https://github.com/Pelmeny/bpkg.git
 cd bpkg
@@ -13,7 +14,7 @@ cd bpkg
 
 ## Overview 📚
 
-NaGNU/bpkg is open source and better than dpkg
+bpkg is open source and writen on shell
 
 ## Project Status 🛠
 - [x] Sync repositories 
