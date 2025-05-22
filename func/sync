@@ -32,7 +32,7 @@ while [ $i -le $reposcount ]; do
 	else
 		curl --no-progress-meter "$repourl"/refs/heads/$ver/pkgslist.json | pv -pber > /var/bpkg/db/$reponame/pkglist.json
 		curl --no-progress-meter "$repourl"/refs/heads/$ver/timestamp | pv -pber > /var/bpkg/db/$reponame/timestamp
-		echo -e "|[${finestr}]      repo has been updated||$reponame|"
+		echo -e "|[${finestr}]     repo has been updated ||$reponame|"
 	fi
 	i=$((i + 1))	
 done	

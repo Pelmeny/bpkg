@@ -49,7 +49,19 @@ installcheck() {
 }
 
 searchfunc() {
-	source /etc/bpkg.d/func/searchfunc
+	source /etc/bpkg.d/func/system/searchfunc
+}
+
+debug() {
+	echo -e "${RED}RUNNING DEBUG${NC}"
+	case ${input[1]} in
+		'searchfunc')
+			searchfunc ${input[2]}
+			echo "path : " ${searchfuncoutpath[@]}
+			echo "name : " ${searchfuncoutname[@]}
+			echo "ver  : " ${searchfuncoutver[@]}
+		;;
+	esac
 }
 ##################################################################################
 # repo
@@ -159,6 +171,9 @@ case ${input[0]} in
 	'-U'|'--upgrade')
 		update
 		exitdb
+	;;
+	'--debug')
+		debug
 	;;
 	'--purge')
 		purgebpkg

@@ -11,6 +11,7 @@ install() {
 	mkdir -v /var/bpkg/repospkg /var/bpkg/db /var/bpkg/temp
 	mkdir -v /etc/bpkg.d
 	cp -rfv ./func /etc/bpkg.d/
+    rm /etc/bpkg.d/setup
     echo "sys|https://github.com/Pelmeny/bpkg-repo|main" > /etc/bpkg.d/list
     cp ./bpkg /bin/
 	echo -e "${NC}####################################################"
