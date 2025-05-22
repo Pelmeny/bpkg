@@ -21,7 +21,7 @@ reinstall() {
     install
 }
 echo -e "======================================"
-echo -e "=   bpkg ver 0.1 '\033[0;36mBetta splendens\033[0m'  ="
+echo -e "=   bpkg ver 0.2 '\033[0;36mBetta splendens\033[0m'  ="
 echo -e "======================================"
 response="0"
 process="install"
