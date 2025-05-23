@@ -3,7 +3,7 @@
 The most stupid package manager on the world 
 
 ## Installing
-depend : pw curl
+depend : pv curl 
 
 to install bpkg run :
 ```
