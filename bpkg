@@ -56,7 +56,7 @@ debug() {
 	echo -e "${RED}RUNNING DEBUG${NC}"
 	case ${input[1]} in
 		'searchfunc')
-			searchfunc ${input[2]}
+			searchfunc ${input[2]} ${input[3]}
 			echo "path : " ${searchfuncoutpath[@]}
 			echo "name : " ${searchfuncoutname[@]}
 			echo "ver  : " ${searchfuncoutver[@]}
@@ -106,8 +106,8 @@ helpkg() {
 	 "|[ help ] -L --list     | list installed pkgs  |\n" \
 	 "|[ help ] -F --find     | find pkgs in repo    |\n" \
 	 "|[ help ] -Li --local   | install pkg from bkg |\n" \
-	 "|[ help ] --purge       | remove bpkg from pc  |\n" \
-	 "|[ help ] -U --upgrade  | upgrade your system  |\n"
+	 "|[ help ] -U --upgrade  | upgrade your system  |\n" \
+	 "|[ help ] --purge       | remove bpkg from pc  |\n" 
 	exit 0 
 }
 versionpkg() {
